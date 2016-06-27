@@ -4,6 +4,17 @@ function SC2Pinit(obj)
 %name and default directory, and assigns the object to a workspace variable
 %named after the acquisition name
 
+% If data was acquired using Sabatini ScanImage, initialize data analysis
+% pipeline to deal with structure of saved Sabatini ScanImage data
+button=questdlg('Was data acquired using Sabatini ScanImage (as opposed to Janelia ScanImage)?');
+if strcmp(button,'Cancel') || isempty(button)
+    disp('User canceled initialization.');
+    return
+elseif strcmp(button,'Yes')
+    obj.sabaMetadata=init_SabaScanImage_analysis;
+elseif strcmp(button,'No')
+end
+
 %Initialize user selection of multiple tif files
 [movNames, movPath] = uigetfile('*.tif','MultiSelect','on');
 

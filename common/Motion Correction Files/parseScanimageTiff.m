@@ -1,7 +1,52 @@
 function [movStruct, nSlices, nChannels] = parseScanimageTiff(mov, siStruct)
 
+global isSabatiniScanImage
+
 % Check for scanimage version before extracting metainformation
-if isfield(siStruct, 'SI4')
+
+% KR 20160627
+% Note that siStruct for Janelia ScanImage 3 has the following fields
+% siStruct = 
+% 
+%     configPath: 'C:\MATLAB_Local\janelia_imaging'
+%     configName: '512x154_0.5ms_BiDi_10Hz'
+%       software: [1x1 struct]
+%            acq: [1x1 struct]
+%           init: [1x1 struct]
+%          cycle: [1x1 struct]
+%          motor: [1x1 struct]
+%       internal: [1x1 struct]
+% 
+% Need to appropriately format/fill-in metadata for Sabatini ScanImage
+% siStruct
+% 
+% Structure of Sabatini ScanImage metadata is
+% 
+% siStruct.sabaMetadata
+% 
+% ans = 
+% 
+%           user: 'KR'
+%          epoch: 2
+%      epochName: ''
+%       software: [1x1 struct]
+%       internal: [1x1 struct]
+%         pulses: [1x1 struct]
+%          files: [1x1 struct]
+%          cycle: [1x1 struct]
+%     configName: '512 x 128 Green Square 2 ms'
+%          pcell: [1x1 struct]
+%        blaster: [1x1 struct]
+%            acq: [1x1 struct]
+%          motor: [1x1 struct]
+%          piezo: [1x1 struct]
+%           phys: [1x1 struct]
+%             lm: [1x1 struct]
+if isSabatiniScanImage==1
+    fZ = 0;
+    nSlices = siStruct.sabaMetadata.acq.numberOfZSlices;
+    nChannels = sum([siStruct.sabaMetadata.acq.savingChannel1 siStruct.sabaMetadata.acq.savingChannel2 siStruct.sabaMetadata.acq.savingChannel3 siStruct.sabaMetadata.acq.savingChannel4]);
+elseif isfield(siStruct, 'SI4')
     siStruct = siStruct.SI4;
     % Nomenclature: frames and slices refer to the concepts used in
     % ScanImage.

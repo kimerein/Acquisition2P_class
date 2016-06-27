@@ -9,7 +9,12 @@ nChannel = numel(movStruct.slice(1).channel);
 isGpu = gpuDeviceCount>0;
 if isGpu
     gpu = gpuDevice;
-    pctRunOnAll reset(gpuDevice);
+    % In case parallel pool does not exist
+    try
+        pctRunOnAll reset(gpuDevice);
+    catch
+        reset(gpuDevice);
+    end
     wait(gpu)
     memAvailable = gpu.AvailableMemory;
 end

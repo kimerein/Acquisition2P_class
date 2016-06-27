@@ -6,7 +6,7 @@ classdef Acquisition2P < handle
     %obj = Acquisition2P;
     %obj = Acquisition2P('acqName');
     %Acquisition2P('acqName',@myInitFun);
-    
+       
     properties
         %At present all of these properties can be freely modified by the user
         acqName             %Name of the acquisition, used for saving metadata and variable in worksapce
@@ -24,6 +24,7 @@ classdef Acquisition2P < handle
         correctedMovies     %Structure formatted by slice and channel, each containing a cell array of filenames
         indexedMovie        %Structure formatted by slice and channel, each containing filename for mat file
         roiInfo             %Slice structure containing rois and related calculations
+        sabaMetadata        %Optional structure for containing metadata associated with Sabatini ScanImage acquisition
     end
     
     methods

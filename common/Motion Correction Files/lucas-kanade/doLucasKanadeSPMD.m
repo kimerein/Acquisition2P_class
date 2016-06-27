@@ -4,7 +4,7 @@ function [aligned, dpxAl, dpyAl, B] = doLucasKanadeSPMD(stackFull, ref, isGpu)
 % https://xcorr.net/2014/08/02/non-rigid-deformation-for-calcium-imaging-frame-alignment/
 % and/or are originally based on the method published in:
 % Greenberg, David S., and Jason N.D. Kerr. “Automated Correction of Fast
-% Motion Artifacts for Two-Photon Imaging of Awake Animals.” Journal of
+% Motion Artifacts for Two-Photon Imaging of Awake Animals.�? Journal of
 % Neuroscience Methods 176, no. 1 (January 15, 2009): 1–15.
 % doi:10.1016/j.jneumeth.2008.08.020.
 
@@ -21,7 +21,12 @@ end
 % Slice data into chunks to prevent GPU from filling up:
 if isGpu
     gpu = gpuDevice;
-    pctRunOnAll reset(gpuDevice);
+    % In case parallel pool does not exist
+    try
+        pctRunOnAll reset(gpuDevice);
+    catch
+        reset(gpuDevice);
+    end
     wait(gpuDevice)
     memAvailable = gpu.AvailableMemory;
     

@@ -14,6 +14,8 @@ function motionCorrect(obj,writeDir,motionCorrectionFunction,namingFunction)
 %   All naming functions must take in the following arguments (in
 %   order): obj.acqName, nSlice, nChannel, movNum.
 
+global isSabatiniScanImage
+
 %% Error checking and input handling
 if ~exist('motionCorrectionFunction', 'var')
     motionCorrectionFunction = [];
@@ -79,6 +81,9 @@ for movNum = movieOrder
     % Apply line shift:
     fprintf('Line Shift Correcting Movie #%03.0f of #%03.0f\n', movNum, nMovies),
     mov = correctLineShift(mov);
+    if isSabatiniScanImage==1
+        scanImageMetadata.sabaMetadata=obj.sabaMetadata;
+    end
     try
         [movStruct, nSlices, nChannels] = parseScanimageTiff(mov, scanImageMetadata);
     catch
