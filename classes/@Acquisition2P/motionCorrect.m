@@ -69,11 +69,22 @@ end
 movieOrder = 1:nMovies;
 movieOrder([1 obj.motionRefMovNum]) = [obj.motionRefMovNum 1];
 
+% Find when imaging shutter (PMT shutter) is closed
+if isSabatiniScanImage==1
+    [saba_shutterData,shutterData_times]=findShutteredFrames(obj,movieOrder);
+end
+
 %Load movies one at a time in order, apply correction, and save as
 %split files (slice and channel)
 for movNum = movieOrder
     fprintf('\nLoading Movie #%03.0f of #%03.0f\n',movNum,nMovies),
     [mov, scanImageMetadata] = obj.readRaw(movNum,'single');
+    
+    if isSabatiniScanImage==1
+        % Remove movie frames when imaging shutter (PMT shutter) is closed
+        mov = removeShutteredFrames(obj,mov,saba_shutterData(movNum==movieOrder,:),shutterData_times);
+    end
+    
     if obj.binFactor > 1
         mov = binSpatial(mov, obj.binFactor);
     end
