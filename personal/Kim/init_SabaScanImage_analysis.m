@@ -27,3 +27,4 @@ fclose(fid);
 state.nameShutterCommand='Opto_Coming'; % This is the string/name given to the voltage command that shutters the PMTs
 state.highMeansShutterOff=true; % If a high TTL value in shutter voltage command means shutter is closed; set to "false" if low value engages shutter
 state.shutterOpeningTime=9+54; % in ms, the time it takes the shutter to open mechanically after receiving command to open
+state.saveShutterDataFolder='ShutterData'; % Folder name in which to save shutter data associated with the Acquisition2P instance

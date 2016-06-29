@@ -51,6 +51,13 @@ if isempty(shutterData)
 else
     samplingRate=obj.sabaMetadata.phys.settings.inputRate; % Get sampling rate of shutterData
     times=0:1/samplingRate:(1/samplingRate)*size(shutterData,2)-(1/samplingRate);
+    status=mkdir([shutterPath obj.sabaMetadata.saveShutterDataFolder]);
+    if status==1
+        save([shutterPath obj.sabaMetadata.saveShutterDataFolder '\shutterData.mat','shutterData']);
+        save([shutterPath obj.sabaMetadata.saveShutterDataFolder '\shutterData_times.mat','times']);
+    else
+        disp('Could not save shutter data');
+    end
 end
     
     
