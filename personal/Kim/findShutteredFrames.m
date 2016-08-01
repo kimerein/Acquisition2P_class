@@ -37,6 +37,14 @@ if ~isempty(listing)
                 shutterData=nan(length(movieOrder),length(w.data));
             end
             shutterData(i,:)=w.data;
+%             if length(w.data)>length(shutterData(i,:))
+%                 temp=shutterData;
+%                 shutterData=[temp nan(length(movieOrder),length(w.data)-length(shutterData(i,:)))];
+%             elseif length(w.data)<length(shutterData(i,:))
+%                 shutterData(i,1:length(w.data))=w.data;
+%             else
+%                 shutterData(i,:)=w.data;
+%             end
         else
             disp(['Missing ' obj.sabaMetadata.nameShutterCommand ' file from movie directory']);
         end

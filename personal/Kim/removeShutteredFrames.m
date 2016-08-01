@@ -74,5 +74,30 @@ for i=1:size(shutterOffTimes,1)
     isShutteredFrame(movieTimes>=shutterOffTimes(i,1) & movieTimes<=shutterOffTimes(i,2))=1;
 end
 mov=mov(:,:,isShutteredFrame==0);
+
     
+movName=obj.Movies{1};
+dirBreaks=regexp(movName,'\','start');
+shutterPath=[movName(1:dirBreaks(end)) obj.sabaMetadata.saveShutterDataFolder];
+listing=what(shutterPath);
+q=strfind(listing.mat,'shutterTimesInMovie');
+isThere=0;
+for i=1:length(q)
+    if q{i}==1
+        isThere=i;
+        load([shutterPath '\' listing.mat{i}]);
+        break
+    end
+end
+if isThere==0
+    shutterTimesInMovie=cell(0);
+end
+currlength=length(shutterTimesInMovie);
+currlength=currlength+1;
+shutterTimesInMovie{currlength}=isShutteredFrame;
+if length(isShutteredFrame(isShutteredFrame==0))~=size(mov,3)
+    error('Mismatch in sizes of isShutteredFrame and mov in removeShutteredFrames.m');
+end
+save([shutterPath '\shutterTimesInMovie.mat'],'shutterTimesInMovie');
+
     

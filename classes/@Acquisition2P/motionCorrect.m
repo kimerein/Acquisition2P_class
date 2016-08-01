@@ -16,6 +16,20 @@ function motionCorrect(obj,writeDir,motionCorrectionFunction,namingFunction)
 
 global isSabatiniScanImage
 
+
+%% Check whether value of global variable isSabatiniScanImage has been set
+if isempty(isSabatiniScanImage)
+    button=questdlg('Was data acquired using Sabatini ScanImage (as opposed to Janelia ScanImage)?');
+    if strcmp(button,'Cancel') || isempty(button)
+        disp('User canceled initialization.');
+        return
+    elseif strcmp(button,'Yes')
+        isSabatiniScanImage=1;
+    elseif strcmp(button,'No')
+        isSabatiniScanImage=0;
+    end
+end
+
 %% Error checking and input handling
 if ~exist('motionCorrectionFunction', 'var')
     motionCorrectionFunction = [];
@@ -72,6 +86,13 @@ movieOrder([1 obj.motionRefMovNum]) = [obj.motionRefMovNum 1];
 % Find when imaging shutter (PMT shutter) is closed
 if isSabatiniScanImage==1
     [saba_shutterData,shutterData_times]=findShutteredFrames(obj,movieOrder);
+    % Clear existing shutter data saved to this directory
+    movName=obj.Movies{1};
+    dirBreaks=regexp(movName,'\','start');
+    shutterPath=[movName(1:dirBreaks(end)) obj.sabaMetadata.saveShutterDataFolder];
+    if exist([shutterPath '\shutterTimesInMovie.mat'],'file')
+        delete([shutterPath '\shutterTimesInMovie.mat']);
+    end
 end
 
 %Load movies one at a time in order, apply correction, and save as
@@ -131,6 +152,13 @@ for movNum = movieOrder
         end
     end
 end
+
+% Correct order of trials in shutterData so that first movie/trial is first, not
+% reference movie/trial first
+movName=obj.Movies{1};
+dirBreaks=regexp(movName,'\','start');
+shutterPath=[movName(1:dirBreaks(end)) obj.sabaMetadata.saveShutterDataFolder];
+correctTrialOrder(shutterPath,movieOrder);
 
 % Store SI metadata in acq object
 obj.metaDataSI = scanImageMetadata;
