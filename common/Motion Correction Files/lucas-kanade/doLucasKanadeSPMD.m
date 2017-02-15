@@ -79,7 +79,7 @@ nBasis = 4;
 % Precalculate constants:
 [h, w, z] = size(stackFull);
 nIters = nan(z, 1, 'like', stackFull);
-minIters = 5;
+minIters = 100;
 
 knots = linspace(1, h, nBasis+1);
 knots = [knots(1)-(knots(2)-knots(1)),knots,knots(end)+(knots(end)-knots(end-1))];
@@ -177,7 +177,7 @@ function [Id, dpx, dpy, ii] = doLucasKanade_singleFrame(...
     B, allBs, xi, yi, theI, Tnorm, nBasis)
 
     warning('off','fastBSpline:nomex');
-    maxIters = 50;
+    maxIters = 200;
     deltacorr = 0.0005;
     [~, w] = size(T);
     

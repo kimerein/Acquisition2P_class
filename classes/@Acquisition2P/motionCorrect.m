@@ -93,17 +93,25 @@ if isSabatiniScanImage==1
     if exist([shutterPath '\shutterTimesInMovie.mat'],'file')
         delete([shutterPath '\shutterTimesInMovie.mat']);
     end
+    % Check for frames shuttered according to distribution of pixel
+    % intensities
+    [non_artifact_range_min,non_artifact_range_max]=findShutterInMovies(obj,movieOrder);
+    non_art_range=[non_artifact_range_min non_artifact_range_max];
 end
 
 %Load movies one at a time in order, apply correction, and save as
 %split files (slice and channel)
+it1=1;
 for movNum = movieOrder
     fprintf('\nLoading Movie #%03.0f of #%03.0f\n',movNum,nMovies),
     [mov, scanImageMetadata] = obj.readRaw(movNum,'single');
-    
+     
     if isSabatiniScanImage==1
         % Remove movie frames when imaging shutter (PMT shutter) is closed
-        mov = removeShutteredFrames(obj,mov,saba_shutterData(movNum==movieOrder,:),shutterData_times);
+        [mov,~,temp_shutterData] = removeShutteredFrames(obj,mov,saba_shutterData(movNum==movieOrder,:),shutterData_times,non_art_range);
+        saba_shutterData(movNum==movieOrder,:)=temp_shutterData;
+        shutterData=saba_shutterData;
+        save([shutterPath '\shutterData.mat'],'shutterData'); 
     end
     
     if obj.binFactor > 1
@@ -123,6 +131,25 @@ for movNum = movieOrder
     end
     clear mov
     
+    % If necessary, crop movie to eliminate no data from turn-around in
+    % bidirectional scanning
+    % Crop movies only for motion correction, then return movies
+    % to normal size before saving for alignment with physiology
+    if isSabatiniScanImage==1
+        if it1==1
+            [movStruct,smallSize,bigSize,cropHere]=cropMovies(movStruct,non_art_range,obj);
+            it1=0;
+        else
+            movStruct=cropThisMovie(movStruct,cropHere);
+        end
+    end            
+    
+    % If necessary, interpolate so that movie appears to be sampled at N
+    % times the actual frame rate -- this may help with motion correction for
+    % GCaMP6f (Fast)
+    Ntimes=2;
+    movStruct=upsampleMovie(movStruct,Ntimes);
+    
     % Find motion:
     fprintf('Identifying Motion Correction for Movie #%03.0f of #%03.0f\n', movNum, nMovies),
     obj.motionCorrectionFunction(obj, movStruct, scanImageMetadata, movNum, 'identify');
@@ -131,6 +158,10 @@ for movNum = movieOrder
     % slice\channel:
     fprintf('Applying Motion Correction for Movie #%03.0f of #%03.0f\n', movNum, nMovies),
     movStruct = obj.motionCorrectionFunction(obj, movStruct, scanImageMetadata, movNum, 'apply');
+    
+    % Uncrop movie, fill nan outside of cropped movie
+    movStruct=uncropThisMovie(movStruct,cropHere);
+    
     for nSlice = 1:nSlices
         for nChannel = 1:nChannels
             % Create movie fileName and save in acq object

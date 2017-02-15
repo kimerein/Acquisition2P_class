@@ -51,6 +51,19 @@ if ~isempty(listing)
     end
 end
 
+if obj.sabaMetadata.optoShuttersImaging==true
+    optoData=findPhysData(obj,movieOrder,obj.sabaMetadata.nameOptoStim);
+    if ~isempty(optoData)
+        if isequal(size(shutterData),size(optoData))
+            % Command to opto laser less than state.optoCommandThresh does not give output
+            optoData(optoData<obj.sabaMetadata.optoCommandThresh*obj.sabaMetadata.optoScaleFactor)=0;
+            shutterData=shutterData+optoData;
+        else
+            error('Size of shutterData does not match size of optoData');
+        end
+    end
+end
+
 if isempty(shutterData)
     % No shutter data 
     disp('No shutter data found - using full movies');
@@ -59,7 +72,17 @@ if isempty(shutterData)
 else
     samplingRate=obj.sabaMetadata.phys.settings.inputRate; % Get sampling rate of shutterData
     times=0:1/samplingRate:(1/samplingRate)*size(shutterData,2)-(1/samplingRate);
-    status=mkdir([shutterPath obj.sabaMetadata.saveShutterDataFolder]);
+    [status,mess,messid]=mkdir([shutterPath obj.sabaMetadata.saveShutterDataFolder]);
+    if strcmp(messid,'MATLAB:MKDIR:DirectoryExists')
+        button=questdlg('Do you want to overwrite existing ShutterData directory?');
+        switch button
+            case 'Yes'
+            case 'No'
+                error('ShutterData directory already exists');
+            case 'Cancel'
+                error('ShutterData directory already exists');
+        end
+    end
     if status==1
         save([shutterPath obj.sabaMetadata.saveShutterDataFolder '\shutterData.mat'],'shutterData');
         save([shutterPath obj.sabaMetadata.saveShutterDataFolder '\shutterData_times.mat'],'times');
@@ -70,6 +93,59 @@ end
     
     
 end
+
+function physData=findPhysData(obj,movieOrder,nameCommand)
+
+% Look for phys command in same path as selected movie files
+movName=obj.Movies{1};
+dirBreaks=regexp(movName,'\','start');
+physPath=movName(1:dirBreaks(end));
+listing=dir([physPath nameCommand '*.mat']);
+listingnames=cell(1,length(listing));
+for i=1:length(listing)
+    listingnames{i}=listing(i).name;
+end
+
+physData=[];
+if ~isempty(listing)
+    % Phys command saved during acquisition
+    % For each movie file, get associated phys command
+    
+    for i=1:length(movieOrder)
+        ci=movieOrder(i);
+        s=obj.Movies{ci};
+        parts=regexp(s,'\','split');
+        movName=parts{end};
+        fi=regexp(movName,'.tif');
+        movName=movName(1:fi-1);
+        movNumber=movName(end-2:end);
+        % Check that expected file is in directory
+        physFile=[nameCommand '_' num2str(str2num(movNumber)) '.mat'];
+        if any(strcmp(listingnames,physFile))
+            warning('off','MATLAB:unknownObjectNowStruct'); % import wave as struct
+            % Load phys command
+            w=load([physPath physFile]);
+            warning('on','MATLAB:unknownObjectNowStruct'); 
+            f=fieldnames(w);
+            w=w.(f{1});
+            if isempty(physData)
+                physData=nan(length(movieOrder),length(w.data));
+            end
+            physData(i,:)=w.data;
+        else
+            disp(['Missing ' nameCommand ' file from movie directory']);
+        end
+    end
+end
+
+if isempty(physData)
+    % No phys data 
+    disp('No phys data found');
+    times=[];
+end
+   
+end
+
     
     
         

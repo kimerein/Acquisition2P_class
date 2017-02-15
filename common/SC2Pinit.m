@@ -21,8 +21,29 @@ end
 %Set default directory to folder location,
 obj.defaultDir = movPath;
 
-%sort movie order alphabetically for consistent results
-movNames = sort(movNames);
+% For Saba scanimage, sort movies by number at end of file name -- this
+% number indicates order in which movies were acquired
+if strcmp(button,'Yes')
+    % Sort based on number at end of file name
+    % Assumes that file name always ends with a number
+    movNumbers=nan(1,length(movNames));
+    for i=1:length(movNames)
+        currMovName=movNames{i};
+        currMovName=fliplr(currMovName);
+        startInd=regexp(currMovName,'\.','once'); 
+        currMovName=currMovName(startInd+1:end);
+        isNumberInd=regexp(currMovName,'\d');
+        numberEnds=find(diff(isNumberInd)>1.05,1,'first');
+        numberMovName=currMovName(1:numberEnds);
+        numberMovName=fliplr(numberMovName);
+        movNumbers(i)=str2num(numberMovName);
+    end
+    [~,inds]=sort(movNumbers); 
+    movNames=movNames(inds);
+else
+    %sort movie order alphabetically for consistent results
+    movNames = sort(movNames);
+end
 
 %Attempt to automatically name acquisition from movie filename, raise
 %warning and create generic name otherwise
