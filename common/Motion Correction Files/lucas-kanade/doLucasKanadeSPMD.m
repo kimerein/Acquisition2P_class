@@ -74,7 +74,7 @@ for i = 1:nWorkers
 end
 
 % Parameters:
-nBasis = 4; % Do not use a value greater than 4! It sometimes causes extreme shifts in a small number of frames.
+nBasis = 2; % Do not use a value greater than 4! It sometimes causes extreme shifts in a small number of frames.
 isCoarseOnly = 0;
 
 % Precalculate constants:

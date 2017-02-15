@@ -144,11 +144,11 @@ for movNum = movieOrder
         end
     end            
     
-    % If necessary, interpolate so that movie appears to be sampled at N
-    % times the actual frame rate -- this may help with motion correction for
-    % GCaMP6f (Fast)
-    Ntimes=4;
-    movStruct=upsampleMovie(movStruct,Ntimes);
+%     % If necessary, interpolate so that movie appears to be sampled at N
+%     % times the actual frame rate -- this may help with motion correction for
+%     % GCaMP6f (Fast)
+%     Ntimes=4;
+%     movStruct=upsampleMovie(movStruct,Ntimes);
     
     % Find motion:
     fprintf('Identifying Motion Correction for Movie #%03.0f of #%03.0f\n', movNum, nMovies),
