@@ -6,13 +6,13 @@ classdef acq2pJobProcessor < handle
         currentAcq
         currentAcqFileName
         nameFunc
-        
+
     end
-    
+
     properties (Hidden = true, Access = protected)
-       flagStop = false; 
+       flagStop = false;
     end
-    
+
     methods
         % Constructor:
         function ajp = acq2pJobProcessor(jobDir, debug, isExitAfterOneJob, nameFunc)
@@ -27,16 +27,16 @@ classdef acq2pJobProcessor < handle
             if nargin==2
                 ajp.debug = debug;
             end
-            
+
             % Define directory names:
             ajp.dir.jobs = jobDir;
             ajp.dir.inProgress = fullfile(jobDir, 'inProgress');
             ajp.dir.done = fullfile(jobDir, 'done');
             ajp.dir.error = fullfile(jobDir, 'error');
-            
+
             ajp.logFileName = fullfile(jobDir, 'acqJobLog.txt');
             
-            ajp.run(isExitAfterOneJob);            
+            ajp.run(isExitAfterOneJob);
         end
     end
 end
