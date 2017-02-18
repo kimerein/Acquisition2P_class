@@ -13,8 +13,8 @@ end
 % For windows when shutter is closed, remove movie frames
 % Find windows when shutter is closed
 % Shutter command is assumed to be TTL
-shutterOnThresh=0.5;
-shutterStateChanges=find(abs(diff(shutterData))>0.1);
+shutterOnThresh=20;
+shutterStateChanges=find(abs(diff(shutterData))>100);
 shutterOffWindows=[];
 if obj.sabaMetadata.highMeansShutterOff==1
     if shutterData(1)<shutterOnThresh

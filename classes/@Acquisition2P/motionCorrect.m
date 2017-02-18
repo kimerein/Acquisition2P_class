@@ -99,6 +99,7 @@ if isSabatiniScanImage==1
     non_art_range=[non_artifact_range_min non_artifact_range_max];
 end
 
+
 %Load movies one at a time in order, apply correction, and save as
 %split files (slice and channel)
 it1=1;

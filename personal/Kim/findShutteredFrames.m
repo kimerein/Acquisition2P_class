@@ -11,6 +11,21 @@ for i=1:length(listing)
     listingnames{i}=listing(i).name;
 end
 
+% Sort files by number
+% movNumbers=nan(1,length(listingnames));
+% for i=1:length(listingnames)
+%     currMovName=listingnames{i};
+%     currMovName=fliplr(currMovName);
+%     startInd=regexp(currMovName,'\.','once');
+%     currMovName=currMovName(startInd+1:end);
+%     isNumberInd=regexp(currMovName,'\d');
+%     numberMovName=currMovName(isNumberInd);
+%     numberMovName=fliplr(numberMovName);
+%     movNumbers(i)=str2num(numberMovName);
+% end
+% [~,inds]=sort(movNumbers);
+% listingnames=listingnames(inds);
+
 shutterData=[];
 if ~isempty(listing)
     % PMT shutter command saved during acquisition
