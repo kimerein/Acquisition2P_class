@@ -77,8 +77,9 @@ end
 
 % Remove frames shuttered according to distribution of pixel values
 isEmpiricallyShuttered=zeros(size(isShutteredFrame));
-meds=median(double(mov(1:end)));
-stds=std(double(mov(1:end)));
+temp=mov(:,:,isShutteredFrame==0);
+meds=median(double(temp(1:end)));
+stds=std(double(temp(1:end)));
 for i=1:size(mov,3)
     temp1=mov(:,:,i);
     temp=(nanmean(temp1,2)-meds)/stds; % Z-score: Average of fluorescence in lines
